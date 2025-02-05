@@ -18,7 +18,7 @@ void fragment() {
 	) * 2.0 - 1.0;
 	float vel = velocity * (dot(vec4(1.0), spread) - 4.0 * prev.x);
 	float height = (2.0 * prev.x - prev.y + vel) * attenuation;
-	vec2 circle = ((vec2(sin(TIME), cos(TIME)) * 0.5) * 0.5 + 0.5) - UV;
+	vec2 circle = mouse_pos - UV;
 	height = mix(height, -1.0, smoothstep(0.05, 0.0, length(circle * vec2(1.0, 2.0))));
 	// low-pass filter to reduce shimmering:
 	height *= 1.0 - exp(-abs(height) * 100.0);

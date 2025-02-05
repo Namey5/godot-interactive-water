@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://h27v4n0cnu3e"]
+[gd_scene load_steps=27 format=3 uid="uid://h27v4n0cnu3e"]
 
 [ext_resource type="Texture2D" uid="uid://cay22pmfqxwgw" path="res://textures/quattro_canti_2k.exr" id="1_gwnah"]
 [ext_resource type="Shader" path="res://shaders/water.gdshader" id="2_20que"]
@@ -6,6 +6,7 @@
 [ext_resource type="Material" uid="uid://cmvtl0rgc0l6n" path="res://materials/pool_tiles_inner.tres" id="3_8sqvv"]
 [ext_resource type="Material" uid="uid://ci46y52me4hiv" path="res://materials/ring.tres" id="5_6padh"]
 [ext_resource type="Script" path="res://scripts/camera_control.gd" id="5_f8hcx"]
+[ext_resource type="Script" path="res://scripts/water.gd" id="6_2wjtu"]
 [ext_resource type="Shader" path="res://shaders/water_simulation.gdshader" id="7_mhf0n"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_s74lw"]
@@ -163,6 +164,8 @@ cast_shadow = 0
 mesh = SubResource("PlaneMesh_r2g58")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_i8axj")
+script = ExtResource("6_2wjtu")
+water_size = Vector2(2, 3)
 
 [node name="WaterSimulation" type="SubViewport" parent="Scene/Water"]
 disable_3d = true
