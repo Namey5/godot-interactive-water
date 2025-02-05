@@ -12,5 +12,6 @@ config_version=5
 
 config/name="water-shader"
 config/description="Enter an interesting project description here!"
+run/main_scene="res://scenes/water_test.tscn"
 config/features=PackedStringArray("4.3")
 config/icon="res://icon.png"

@@ -1,0 +1,116 @@
+[gd_scene load_steps=14 format=3 uid="uid://h27v4n0cnu3e"]
+
+[ext_resource type="Texture2D" uid="uid://cay22pmfqxwgw" path="res://textures/quattro_canti_2k.exr" id="1_gwnah"]
+[ext_resource type="Material" uid="uid://cy82e52c2yj2c" path="res://materials/pool_tiles_outer.tres" id="2_ekdfg"]
+[ext_resource type="Material" uid="uid://cmvtl0rgc0l6n" path="res://materials/pool_tiles_inner.tres" id="3_8sqvv"]
+[ext_resource type="Material" uid="uid://h5ec2lnj45cq" path="res://materials/water.tres" id="4_xpf56"]
+[ext_resource type="Material" uid="uid://ci46y52me4hiv" path="res://materials/ring.tres" id="5_6padh"]
+[ext_resource type="Script" path="res://scripts/camera_control.gd" id="5_f8hcx"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_s74lw"]
+panorama = ExtResource("1_gwnah")
+
+[sub_resource type="Sky" id="Sky_ce5jv"]
+sky_material = SubResource("PanoramaSkyMaterial_s74lw")
+
+[sub_resource type="Environment" id="Environment_kq6rg"]
+background_mode = 2
+sky = SubResource("Sky_ce5jv")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="CameraAttributesPhysical" id="CameraAttributesPhysical_c4swm"]
+exposure_multiplier = 0.3
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_icg2l"]
+exposure_multiplier = 0.3
+dof_blur_far_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_r2g58"]
+size = Vector2(4, 6)
+subdivide_width = 64
+subdivide_depth = 96
+
+[sub_resource type="TorusMesh" id="TorusMesh_jlbni"]
+inner_radius = 0.25
+outer_radius = 0.5
+
+[node name="WaterTest" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_kq6rg")
+camera_attributes = SubResource("CameraAttributesPhysical_c4swm")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.923726, 0.331735, -0.191527, 2.78059e-08, 0.5, 0.866025, 0.383054, -0.79997, 0.461863, 0, 0, 0)
+light_color = Color(1, 0.937255, 0.858824, 1)
+light_energy = 3.0
+shadow_enabled = true
+
+[node name="CameraOrbit" type="SpringArm3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0)
+spring_length = 2.0
+script = ExtResource("5_f8hcx")
+
+[node name="Camera3D" type="Camera3D" parent="CameraOrbit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+attributes = SubResource("CameraAttributesPractical_icg2l")
+fov = 60.0
+far = 100.0
+
+[node name="Scene" type="Node3D" parent="."]
+
+[node name="Pool" type="CSGCombiner3D" parent="Scene"]
+
+[node name="Outer" type="CSGBox3D" parent="Scene/Pool"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+size = Vector3(4.5, 2.5, 6.5)
+material = ExtResource("2_ekdfg")
+
+[node name="Inner" type="CSGCombiner3D" parent="Scene/Pool/Outer"]
+operation = 2
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="Scene/Pool/Outer/Inner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.25, 2)
+height = 2.5
+sides = 16
+material = ExtResource("3_8sqvv")
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="Scene/Pool/Outer/Inner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.25, 2)
+height = 2.5
+sides = 16
+material = ExtResource("3_8sqvv")
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="Scene/Pool/Outer/Inner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.25, -2)
+height = 2.5
+sides = 16
+material = ExtResource("3_8sqvv")
+
+[node name="CSGCylinder3D4" type="CSGCylinder3D" parent="Scene/Pool/Outer/Inner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.25, -2)
+height = 2.5
+sides = 16
+material = ExtResource("3_8sqvv")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Scene/Pool/Outer/Inner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+size = Vector3(3, 2.5, 4)
+material = ExtResource("3_8sqvv")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Scene/Pool/Outer/Inner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+size = Vector3(2, 2.5, 5)
+material = ExtResource("3_8sqvv")
+
+[node name="Water" type="MeshInstance3D" parent="Scene"]
+cast_shadow = 0
+mesh = SubResource("PlaneMesh_r2g58")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("4_xpf56")
+
+[node name="Ring" type="MeshInstance3D" parent="Scene"]
+mesh = SubResource("TorusMesh_jlbni")
+skeleton = NodePath("../..")
+surface_material_override/0 = ExtResource("5_6padh")

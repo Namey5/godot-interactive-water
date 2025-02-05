@@ -1,0 +1,21 @@
+[gd_resource type="StandardMaterial3D" load_steps=6 format=3 uid="uid://cy82e52c2yj2c"]
+
+[ext_resource type="Texture2D" uid="uid://b34q5kp3voelr" path="res://textures/Tiles111_1K-JPG_Color.jpg" id="1_e77wj"]
+[ext_resource type="Texture2D" uid="uid://6p626u7g88dt" path="res://textures/Tiles111_1K-JPG_NormalGL.jpg" id="2_ui1jw"]
+[ext_resource type="Texture2D" uid="uid://dec8ovtmdltkh" path="res://textures/Tiles111_1K-JPG_Roughness.jpg" id="3_bmp16"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_aghg8"]
+load_path = "res://.godot/imported/Tiles111_1K-JPG_AmbientOcclusion.jpg-3dcbb9fb9b7770261047b2c820eca365.s3tc.ctex"
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_u46br"]
+load_path = "res://.godot/imported/Tiles111_1K-JPG_Displacement.jpg-1ad3fac32f684a4301797d1b767b56b2.s3tc.ctex"
+
+[resource]
+albedo_texture = ExtResource("1_e77wj")
+roughness_texture = ExtResource("3_bmp16")
+normal_enabled = true
+normal_texture = ExtResource("2_ui1jw")
+ao_texture = SubResource("CompressedTexture2D_aghg8")
+heightmap_scale = 16.0
+heightmap_texture = SubResource("CompressedTexture2D_u46br")
+uv1_triplanar = true
