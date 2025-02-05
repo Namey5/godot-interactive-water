@@ -1,11 +1,12 @@
-[gd_scene load_steps=14 format=3 uid="uid://h27v4n0cnu3e"]
+[gd_scene load_steps=26 format=3 uid="uid://h27v4n0cnu3e"]
 
 [ext_resource type="Texture2D" uid="uid://cay22pmfqxwgw" path="res://textures/quattro_canti_2k.exr" id="1_gwnah"]
+[ext_resource type="Shader" path="res://shaders/water.gdshader" id="2_20que"]
 [ext_resource type="Material" uid="uid://cy82e52c2yj2c" path="res://materials/pool_tiles_outer.tres" id="2_ekdfg"]
 [ext_resource type="Material" uid="uid://cmvtl0rgc0l6n" path="res://materials/pool_tiles_inner.tres" id="3_8sqvv"]
-[ext_resource type="Material" uid="uid://h5ec2lnj45cq" path="res://materials/water.tres" id="4_xpf56"]
 [ext_resource type="Material" uid="uid://ci46y52me4hiv" path="res://materials/ring.tres" id="5_6padh"]
 [ext_resource type="Script" path="res://scripts/camera_control.gd" id="5_f8hcx"]
+[ext_resource type="Shader" path="res://shaders/water_simulation.gdshader" id="7_mhf0n"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_s74lw"]
 panorama = ExtResource("1_gwnah")
@@ -28,12 +29,63 @@ dof_blur_far_enabled = true
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_r2g58"]
 size = Vector2(4, 6)
-subdivide_width = 64
-subdivide_depth = 96
+subdivide_width = 128
+subdivide_depth = 192
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_oy7gb"]
+viewport_path = NodePath("Scene/Water/WaterSimulation")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_pmgd7"]
+noise_type = 0
+fractal_octaves = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_hw2gw"]
+seamless = true
+as_normal_map = true
+noise = SubResource("FastNoiseLite_pmgd7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i8axj"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("2_20que")
+shader_parameter/albedo = Color(0.01, 0.01, 0.05, 1)
+shader_parameter/scattering = Color(1, 0.398236, 0.411946, 1)
+shader_parameter/refraction_strength = 100.0
+shader_parameter/depth_blur = 3.0
+shader_parameter/waves_strength = 0.5
+shader_parameter/displacement_height = 0.1
+shader_parameter/waves_map = SubResource("NoiseTexture2D_hw2gw")
+shader_parameter/ripples_map = SubResource("ViewportTexture_oy7gb")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f0pvl"]
+shader = ExtResource("7_mhf0n")
+shader_parameter/velocity = 0.2
+shader_parameter/attenuation = 0.98
+shader_parameter/scale = 1.0
+shader_parameter/mouse_pos = Vector2(-1, -1)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_mjnhk"]
+viewport_path = NodePath("Scene/Water/WaterSimulation/DoubleBuffer")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_slcvc"]
+viewport_path = NodePath("Scene/Water/WaterSimulation")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i322f"]
+size = Vector3(4, 2, 6)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_kskne"]
+height = 0.25
 
 [sub_resource type="TorusMesh" id="TorusMesh_jlbni"]
 inner_radius = 0.25
 outer_radius = 0.5
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_v78ot"]
+radius = 0.25
+
+[sub_resource type="SphereMesh" id="SphereMesh_8ln67"]
+radius = 0.25
+height = 0.5
 
 [node name="WaterTest" type="Node3D"]
 
@@ -49,6 +101,7 @@ shadow_enabled = true
 
 [node name="CameraOrbit" type="SpringArm3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0)
+collision_mask = 0
 spring_length = 2.0
 script = ExtResource("5_f8hcx")
 
@@ -61,6 +114,7 @@ far = 100.0
 [node name="Scene" type="Node3D" parent="."]
 
 [node name="Pool" type="CSGCombiner3D" parent="Scene"]
+use_collision = true
 
 [node name="Outer" type="CSGBox3D" parent="Scene/Pool"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
@@ -108,9 +162,66 @@ material = ExtResource("3_8sqvv")
 cast_shadow = 0
 mesh = SubResource("PlaneMesh_r2g58")
 skeleton = NodePath("../..")
-surface_material_override/0 = ExtResource("4_xpf56")
+surface_material_override/0 = SubResource("ShaderMaterial_i8axj")
 
-[node name="Ring" type="MeshInstance3D" parent="Scene"]
+[node name="WaterSimulation" type="SubViewport" parent="Scene/Water"]
+disable_3d = true
+handle_input_locally = false
+gui_disable_input = true
+render_target_update_mode = 4
+
+[node name="SimulationTex" type="TextureRect" parent="Scene/Water/WaterSimulation"]
+material = SubResource("ShaderMaterial_f0pvl")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("ViewportTexture_mjnhk")
+expand_mode = 1
+
+[node name="DoubleBuffer" type="SubViewport" parent="Scene/Water/WaterSimulation"]
+render_target_update_mode = 4
+
+[node name="CopyTex" type="TextureRect" parent="Scene/Water/WaterSimulation/DoubleBuffer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("ViewportTexture_slcvc")
+expand_mode = 1
+
+[node name="PhysicsVolume" type="Area3D" parent="Scene/Water"]
+gravity_space_override = 4
+gravity_point_center = Vector3(0, 1, 0)
+gravity_direction = Vector3(0, 1, 0)
+gravity = 10.7
+linear_damp_space_override = 3
+linear_damp = 10.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Scene/Water/PhysicsVolume"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+shape = SubResource("BoxShape3D_i322f")
+
+[node name="Ring" type="RigidBody3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.443117, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Scene/Ring"]
+shape = SubResource("CylinderShape3D_kskne")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Scene/Ring"]
 mesh = SubResource("TorusMesh_jlbni")
-skeleton = NodePath("../..")
+skeleton = NodePath("../../..")
+surface_material_override/0 = ExtResource("5_6padh")
+
+[node name="Ball" type="RigidBody3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.44312, 0.526849)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Scene/Ball"]
+shape = SubResource("SphereShape3D_v78ot")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Scene/Ball"]
+mesh = SubResource("SphereMesh_8ln67")
+skeleton = NodePath("../../..")
 surface_material_override/0 = ExtResource("5_6padh")
