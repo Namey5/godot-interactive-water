@@ -1,7 +1,7 @@
 extends MeshInstance3D
 
 
-@export var water_size := Vector2(1, 1)
+@export var water_half_size := Vector2(1, 1)
 
 @onready var _simulation: TextureRect = $WaterSimulation/SimulationTex
 
@@ -18,7 +18,10 @@ func _process(_delta: float) -> void:
 		)
 		if hit:
 			var local_hit := transform.inverse() * (hit as Vector3)
-			mouse_pos = Vector2(local_hit.x, local_hit.z) / water_size * 0.5 + 0.5 * Vector2.ONE
+			mouse_pos = Vector2(local_hit.x, local_hit.z) / maxf(water_half_size.x, water_half_size.y) * 0.5 + 0.5 * Vector2.ONE
 		else:
 			mouse_pos = -Vector2.ONE
 	_simulation.material.set("shader_parameter/mouse_pos", mouse_pos)
+	
+	var surface_material := get_active_material(0)
+	surface_material.set("shader_parameter/water_size", water_half_size)

@@ -50,11 +50,15 @@ resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("2_20que")
 shader_parameter/albedo = Color(0.01, 0.01, 0.05, 1)
-shader_parameter/scattering = Color(1, 0.398236, 0.411946, 1)
+shader_parameter/scattering = Color(1, 0.4, 0.4, 1)
+shader_parameter/scattering_strength = 5.0
 shader_parameter/refraction_strength = 100.0
 shader_parameter/depth_blur = 3.0
 shader_parameter/waves_strength = 0.5
+shader_parameter/waves_scale = 1.0
+shader_parameter/waves_speed = 1.0
 shader_parameter/displacement_height = 0.1
+shader_parameter/water_size = Vector2(2, 3)
 shader_parameter/waves_map = SubResource("NoiseTexture2D_hw2gw")
 shader_parameter/ripples_map = SubResource("ViewportTexture_oy7gb")
 
@@ -63,6 +67,8 @@ shader = ExtResource("7_mhf0n")
 shader_parameter/velocity = 0.2
 shader_parameter/attenuation = 0.98
 shader_parameter/scale = 1.0
+shader_parameter/low_pass_filter = 0.01
+shader_parameter/mouse_size = 32.0
 shader_parameter/mouse_pos = Vector2(-1, -1)
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_mjnhk"]
@@ -196,12 +202,13 @@ mesh = SubResource("PlaneMesh_r2g58")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("ShaderMaterial_i8axj")
 script = ExtResource("6_2wjtu")
-water_size = Vector2(2, 3)
+water_half_size = Vector2(2, 3)
 
 [node name="WaterSimulation" type="SubViewport" parent="Scene/Water"]
 disable_3d = true
 handle_input_locally = false
 gui_disable_input = true
+size = Vector2i(1024, 1024)
 render_target_update_mode = 4
 
 [node name="SimulationTex" type="TextureRect" parent="Scene/Water/WaterSimulation"]
@@ -215,6 +222,7 @@ texture = SubResource("ViewportTexture_mjnhk")
 expand_mode = 1
 
 [node name="DoubleBuffer" type="SubViewport" parent="Scene/Water/WaterSimulation"]
+size = Vector2i(1024, 1024)
 render_target_update_mode = 4
 
 [node name="CopyTex" type="TextureRect" parent="Scene/Water/WaterSimulation/DoubleBuffer"]
@@ -240,6 +248,7 @@ shape = SubResource("BoxShape3D_i322f")
 
 [node name="Ring" type="RigidBody3D" parent="Scene"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.443117, 0)
+visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Scene/Ring"]
 shape = SubResource("CylinderShape3D_kskne")
@@ -251,6 +260,7 @@ surface_material_override/0 = ExtResource("5_6padh")
 
 [node name="Ball" type="RigidBody3D" parent="Scene"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.44312, 0.526849)
+visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Scene/Ball"]
 shape = SubResource("SphereShape3D_v78ot")
