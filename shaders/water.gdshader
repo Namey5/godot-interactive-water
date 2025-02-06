@@ -17,6 +17,7 @@ uniform sampler2D ripples_map;
 uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest;
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear_mipmap;
 
+// this is just to compensate for non-square bodies of water:
 vec2 get_ripple_uv(vec2 uv) {
 	vec2 ratio = water_size / min(water_size.x, water_size.y);
 	vec3 offset = vec3(0.25 / ratio.y, 0.25 / ratio.x, 0.0);
@@ -29,6 +30,7 @@ vec2 get_ripple_uv(vec2 uv) {
 }
 
 void vertex() {
+	// this is copy+pasted from fragment(), so look there for comments:
 	vec3 world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	vec2 ripple_uv = get_ripple_uv(UV);
 	VERTEX.y += (
@@ -57,7 +59,7 @@ void fragment() {
 	ALBEDO = albedo.rgb;
 	ROUGHNESS = 0.05;
 	
-	// todo: texel size of ripples_map is currently hardcoded to 512x512
+	// todo: size of ripples_map is currently hardcoded to 1024x1024
 	const vec3 duv = vec3(1.0, 1.0, 0.0) / 1024.0;
 	vec2 ripple_uv = get_ripple_uv(UV);
 	// approximate normals from heightmap:
@@ -71,7 +73,6 @@ void fragment() {
 	
 	// blend between normal maps in [-1,1] then re-normalize:
 	NORMAL_MAP = (
-		// todo: make these configurable
 		texture(waves_map, world_pos.xz * waves_scale / 3.0 + TIME * waves_speed * 0.1).xyz * 2.0 - 1.0 +
 		texture(waves_map, world_pos.xz * waves_scale / 2.5 - TIME * waves_speed * 0.1).xyz * 2.0 - 1.0 +
 		ripples.xyz
@@ -86,6 +87,8 @@ void fragment() {
 		* (waves_strength * refraction_strength * depth_scattering.w / local_depth);
 	// hack: depth blur by offsetting mipmaps
 	EMISSION = textureLod(screen_tex, refracted_uv, depth_scattering.w * depth_blur).rgb;
+	// only need to apply scattering to emission to achieve premul transparency here:
 	EMISSION *= depth_scattering.rgb;
+	// just use normal alpha blending to make edge intersections nicer:
 	ALPHA = depth_scattering.w;
 }
