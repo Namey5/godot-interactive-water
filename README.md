@@ -8,7 +8,8 @@ I've had various implementations of this kind of thing lying around for who know
 From memory, the original source was someone's personal tech-blog implementation in C from the late 90's which explained the maths better than I could,
 but is unfortunately lost to time (I used to have an archive link hanging around in my bookmarks, but those have also been lost to the Firefox account-sync aether).
 
-If anyone does happen to find the link please drop an issue/PR and I'll properly credit it here.
+**Edit:**
+[found the original post by Hugo Elias](https://web.archive.org/web/20160418004149/http://freespace.virgin.net/hugo.elias/graphics/x_water.htm)
 
 ## How
 Basic idea is a [-1,1] heightmap containing both current and previous moments (in RED and GREEN channels, respectively) 
@@ -32,3 +33,9 @@ Water-surface shader itself is otherwise pretty standard:
 - Screen-space refraction
 - Linear depth scattering
 - Poor-man's depth blur using screen-texture mipmap offsets
+
+-----
+
+Textures are CC0 licensed from:
+- https://polyhaven.com/
+- https://ambientcg.com/
